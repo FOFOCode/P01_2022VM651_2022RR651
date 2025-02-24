@@ -20,15 +20,34 @@ namespace P01_2022VM651_2022RR651.Controllers
         [Route("GetAll")]
         public IActionResult GetAll()
         {
-            List<EspaciosParqueo> listadoEspaciosParquo = (from ep in _ParkinDbcontext.Espacios select ep).ToList();
+            var listadoEspaciosParqueo = (from ep in _ParkinDbcontext.EspaciosParqueo
+                                          join s in _ParkinDbcontext.Sucursales on ep.SucursalID equals s.SucursalID
+                                          select new
+                                          {
+                                              ep.EspacioID,
+                                              Sucursal = s.Nombre,
+                                              ep.NumeroEspacio,
+                                              ep.Ubicacion,
+                                              ep.CostoPorHora,
+                                              ep.Estado
+                                          }).ToList();
 
-            if(listadoEspaciosParquo.Count() == 0)
+            if (listadoEspaciosParqueo.Count() == 0)
             {
                 return NotFound();
             }
 
-            return Ok(listadoEspaciosParquo);
+            return Ok(listadoEspaciosParqueo);
         }
+
+        //[HttpPost]
+        //[Route("Add")]
+        //public IActionResult GuardarEspacioParqueo(EspaciosParqueo espaciosParqueo)
+        //{
+        //    _ParkinDbcontext.Espacios.Add(espaciosParqueo);
+        //    _ParkinDbcontext.SaveChanges();
+        //    return Ok();
+        //}
 
 
     }
