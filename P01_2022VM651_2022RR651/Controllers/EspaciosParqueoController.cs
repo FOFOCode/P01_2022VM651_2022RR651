@@ -200,11 +200,14 @@ namespace P01_2022VM651_2022RR651.Controllers
 
         [HttpGet]
         [Route("EspaciosDisponibles")]
-        public IActionResult ObtenerEspaciosDisponibles()
+        public IActionResult ObtenerEspaciosDisponibles([FromQuery] int sucursalID, [FromQuery] DateTime fecha)
         {
             var espaciosDisponibles = (from ep in _ParkinDbcontext.EspaciosParqueo
                                        join s in _ParkinDbcontext.Sucursales on ep.SucursalID equals s.SucursalID
                                        where ep.Estado == "Disponible"
+                                             && ep.SucursalID == sucursalID
+                                             && !(_ParkinDbcontext.Reservas.Any(r => r.EspacioID == ep.EspacioID
+                                                 && r.FechaReserva.Value.Date == fecha.Date)) 
                                        select new
                                        {
                                            ep.EspacioID,
@@ -217,11 +220,13 @@ namespace P01_2022VM651_2022RR651.Controllers
 
             if (espaciosDisponibles.Count == 0)
             {
-                return NotFound("No hay espacios de parqueo disponibles en este momento.");
+                return NotFound("No hay espacios de parqueo disponibles en esta sucursal para la fecha seleccionada.");
             }
 
             return Ok(espaciosDisponibles);
         }
+
+
 
         [HttpPut]
         [Route("ActualizarEspacio/{id}")]
