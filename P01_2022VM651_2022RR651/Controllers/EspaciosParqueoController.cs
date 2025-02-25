@@ -40,14 +40,46 @@ namespace P01_2022VM651_2022RR651.Controllers
             return Ok(listadoEspaciosParqueo);
         }
 
-        //[HttpPost]
-        //[Route("Add")]
-        //public IActionResult GuardarEspacioParqueo(EspaciosParqueo espaciosParqueo)
-        //{
-        //    _ParkinDbcontext.Espacios.Add(espaciosParqueo);
-        //    _ParkinDbcontext.SaveChanges();
-        //    return Ok();
-        //}
+        [HttpPost]
+        [Route("Add")]
+        public IActionResult GuardarEspacioParqueo([FromBody]EspaciosParqueo espaciosParqueo)
+        {
+            try
+            {
+                _ParkinDbcontext.EspaciosParqueo.Add(espaciosParqueo);
+                _ParkinDbcontext.SaveChanges();
+                return Ok(espaciosParqueo);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("Actualizar/{id}")]
+        public IActionResult ActualizarEspacioParqueo(int id, [FromBody] EspaciosParqueo espaciosParqueoModificar)
+        {
+            EspaciosParqueo? espaciosParqueoActual = (from ep in _ParkinDbcontext.EspaciosParqueo where ep.EspacioID == id
+                                                       select ep).FirstOrDefault();
+
+            if(espaciosParqueoActual == null)
+            {
+                return NotFound();
+            }
+
+            espaciosParqueoActual.EspacioID = espaciosParqueoModificar.EspacioID;
+            espaciosParqueoActual.SucursalID = espaciosParqueoModificar.SucursalID;
+            espaciosParqueoActual.NumeroEspacio = espaciosParqueoModificar.NumeroEspacio;
+            espaciosParqueoActual.Ubicacion = espaciosParqueoModificar.Ubicacion;
+            espaciosParqueoActual.CostoPorHora = espaciosParqueoModificar.CostoPorHora;
+            espaciosParqueoActual.Estado = espaciosParqueoModificar.Estado;
+
+            _ParkinDbcontext.Entry(espaciosParqueoActual).State = EntityState.Modified;
+            _ParkinDbcontext.SaveChanges();
+
+            return Ok(espaciosParqueoActual);
+        }
 
 
     }
